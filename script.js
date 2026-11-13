@@ -71,7 +71,8 @@ async function guardarContactoBD(nombre, email, asunto, mensaje) {
 
 // Actualizar contador del carrito
 function updateCartCount() {
-    const count = cart.length;
+    // Suma las unidades (3 iPads = 3), no solo productos distintos
+    const count = cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
     document.querySelectorAll('.cart-count').forEach(el => {
         el.textContent = `(${count})`;
     });
@@ -184,6 +185,7 @@ function updateQuantity(id, quantity) {
             removeFromCart(id);
         } else {
             localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
             updateCartSummary();
         }
     }
