@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de API - Base de Datos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #4ec9b0;
+            margin-bottom: 20px;
+        }
+
+        .test-section {
+            background: #2d2d2d;
+            border: 1px solid #3e3e3e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .test-section h2 {
+            color: #569cd6;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #0e639c;
+            color: white;
+            border: 1px solid #1e639c;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #1177bb;
+            border-color: #4ec9b0;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background: #f48771;
+            border-color: #c41e3a;
+        }
+
+        .btn-danger:hover {
+            background: #ff4444;
+            border-color: #ff6666;
+        }
+
+        .output {
+            background: #1e1e1e;
+            border: 1px solid #569cd6;
+            border-radius: 5px;
+            padding: 15px;
+            color: #4ec9b0;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .output .error {
+            color: #f48771;
+        }
+
+        .output .success {
+            color: #6a9955;
+        }
+
+        .output .info {
+            color: #569cd6;
+        }
+
+        input {
+            background: #3e3e3e;
+            color: #d4d4d4;
+            border: 1px solid #569cd6;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .status.online {
+            background: #6a9955;
+            color: white;
+        }
+
+        .status.offline {
+            background: #f48771;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test de API - Base de Datos TechStore</h1>
+
+        <div class="test-section">
+            <h2>🔌 Estado de Conexión</h2>
+            <button onclick="testConexion()">Probar Conexión</button>
+            <div class="output" id="statusOutput"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📧 Test de Contactos</h2>
+            
+            <h3 style="color: #ce9178; margin-bottom: 10px;">Obtener todos los contactos:</h3>
+            <button onclick="obtenerContactos()">GET /api/contactos</button>
+            <div class="output" id="contactosOutput"></div>
+
+            <h3 style="color: #ce9178; margin-bottom: 10px; margin-top: 20px;">ID del contacto a probar:</h3>
+            <input type="number" id="contactoId" placeholder="Ej: 1" value="1">
+
+            <h3 style="color: #ce9178; margin-bottom: 10px;">Marcar como leído:</h3>
+            <button onclick="marcarComoLeido()">PUT /api/contactos/:id/leido</button>
+            <div class="output" id="marcarOutput"></div>
+
+            <h3 style="color: #ce9178; margin-bottom: 10px; margin-top: 20px;">Borrar contacto:</h3>
+            <button class="btn-danger" onclick="borrarContactoTest()">DELETE /api/contactos/:id</button>
+            <div class="output" id="borrarOutput"></div>
+
+            <h3 style="color: #ce9178; margin-bottom: 10px; margin-top: 20px;">Borrar todos los leídos:</h3>
+            <button class="btn-danger" onclick="borrarTodosLeidosTest()">DELETE /api/contactos/leidos/todos</button>
+            <div class="output" id="borrarTodosOutput"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api';
+
+        function appendOutput(elementId, message, type = 'info') {
+            const output = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            
+            output.innerHTML += `<div class="${className}">[${timestamp}] ${icon} ${message}</div>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput(elementId) {
+            document.getElementById(elementId).innerHTML = '';
+        }
+
+        async function testConexion() {
+            clearOutput('statusOutput');
+            appendOutput('statusOutput', 'Probando conexión a http://localhost:3001...');
+            
+            try {
+                const response = await fetch(`${API_URL}/productos`);
+                if (response.ok) {
+                    appendOutput('statusOutput', '<span style="color: #6a9955;">✓ Servidor CONECTADO</span>', 'success');
+                    appendOutput('statusOutput', `Status: ${response.status}`, 'success');
+                } else {
+                    appendOutput('statusOutput', `Servidor respondió con status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                appendOutput('statusOutput', `Error de conexión: ${error.message}`, 'error');
+                appendOutput('statusOutput', 'Asegúrate de que el servidor está corriendo: npm start', 'error');
+            }
+        }
+
+        async function obtenerContactos() {
+            clearOutput('contactosOutput');
+            appendOutput('contactosOutput', 'Obteniendo contactos...');
+            
+            try {
+                const response = await fetch(`${API_URL}/contactos`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    appendOutput('contactosOutput', `✓ Encontrados ${data.length} contactos`, 'success');
+                    data.forEach(c => {
+                        const leido = c.leido ? '✓ Leído' : '● No leído';
+                        appendOutput('contactosOutput', `ID: ${c.id} | ${c.nombre} | ${leido}`, 'success');
+                    });
+                } else {
+                    appendOutput('contactosOutput', `Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                appendOutput('contactosOutput', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function marcarComoLeido() {
+            clearOutput('marcarOutput');
+            const id = document.getElementById('contactoId').value;
+            
+            if (!id) {
+                appendOutput('marcarOutput', 'Por favor ingresa un ID', 'error');
+                return;
+            }
+
+            appendOutput('marcarOutput', `Marcando contacto ${id} como leído...`);
+            
+            try {
+                const response = await fetch(`${API_URL}/contactos/${id}/leido`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    appendOutput('marcarOutput', `✓ ${data.mensaje}`, 'success');
+                } else {
+                    appendOutput('marcarOutput', `Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                appendOutput('marcarOutput', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function borrarContactoTest() {
+            clearOutput('borrarOutput');
+            const id = document.getElementById('contactoId').value;
+            
+            if (!id) {
+                appendOutput('borrarOutput', 'Por favor ingresa un ID', 'error');
+                return;
+            }
+
+            if (!confirm(`¿Borrar contacto ${id}?`)) return;
+
+            appendOutput('borrarOutput', `Borrando contacto ${id}...`);
+            
+            try {
+                const response = await fetch(`${API_URL}/contactos/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    appendOutput('borrarOutput', `✓ ${data.mensaje}`, 'success');
+                } else {
+                    appendOutput('borrarOutput', `Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                appendOutput('borrarOutput', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function borrarTodosLeidosTest() {
+            clearOutput('borrarTodosOutput');
+            
+            if (!confirm('¿Borrar TODOS los contactos leídos?')) return;
+
+            appendOutput('borrarTodosOutput', 'Borrando todos los leídos...');
+            
+            try {
+                const response = await fetch(`${API_URL}/contactos/leidos/todos`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    appendOutput('borrarTodosOutput', `✓ ${data.mensaje}`, 'success');
+                } else {
+                    appendOutput('borrarTodosOutput', `Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                appendOutput('borrarTodosOutput', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test automático al cargar
+        window.addEventListener('load', testConexion);
+    </script>
+</body>
+</html>

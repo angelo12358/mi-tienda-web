@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - TechStore</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">TechStore</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="productos.html">Products</a></li>
+                <li><a href="acerca-de.html">About</a></li>
+                <li><a href="contacto.html">Contact</a></li>
+                <li class="cart-link"><a href="carrito.html" class="active"><i class="fas fa-shopping-cart"></i> Cart <span class="cart-count">(0)</span></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Shopping Cart -->
+    <section class="cart-page">
+        <div class="container">
+            <h1>Your Shopping Cart</h1>
+            
+            <div class="cart-content">
+                <div class="cart-items">
+                    <div id="cartItems" class="items-list">
+                        <!-- Products are added here dynamically -->
+                    </div>
+                </div>
+
+                <div class="cart-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-item">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Shipping:</span>
+                        <span id="shipping">$10.00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Taxes (10%):</span>
+                        <span id="tax">$0.00</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span>Total:</span>
+                        <span id="total">$0.00</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="checkout()">Proceed to Payment</button>
+                    <button class="btn btn-secondary" onclick="continueShopping()">Continue Shopping</button>
+                </div>
+            </div>
+
+            <div id="emptyCart" class="empty-cart" style="display: none;">
+                <h2>Your cart is empty</h2>
+                <p>Discover our amazing products!</p>
+                <a href="productos.html" class="btn btn-primary">View Products</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <h4>TechStore</h4>
+                    <p>Your trusted technology store</p>
+                </div>
+                <div>
+                    <h4>Follow Us</h4>
+                    <p>Facebook | Twitter | Instagram</p>
+                </div>
+                <div>
+                    <h4>Contact</h4>
+                    <p>info@techstore.com | +1 234 567 89</p>
+                </div>
+            </div>
+            <p class="copyright">&copy; 2025 TechStore. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Mostrar carrito al cargar la página
+        displayCart();
+    </script>
+</body>
+</html>

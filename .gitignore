@@ -1,0 +1,6 @@
+node_modules/
+tienda.db
+.DS_Store
+*.log
+publicar/
+.claude/
